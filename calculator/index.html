@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hotties Calculator</title>
+<meta name="description" content="Upgrade calculators for base, robots, hero gear, trove, tomes, reformation, promotion and Hyperalloy.">
+<meta name="theme-color" content="#030915">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hotties Calc">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#030915; --surface:#0b172b; --fg:#f2f7ff; --muted:#9fb4cf; --line:#1f4470;
+  --accent:#4ba3ff; --accent-fg:#03101f; --accent-soft:#10305a; --field:#071226; --warn:#ffcf7a; --warn-soft:#2a210c;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(ellipse at 60% -20%,#173a73 0%,transparent 55%) fixed,var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+.wrap{max-width:1040px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding-top:20px}
+h1{font:700 26px/1.1 var(--font-head);margin:0;letter-spacing:-.01em}
+.credit{color:var(--muted);font-size:13px;display:block;margin-top:4px}
+.back{display:inline-block;color:#83beff;font-size:12px;font-weight:700;letter-spacing:.14em;text-decoration:none;margin-bottom:6px}
+.back:hover{color:#fff}
+.hdr-actions{display:flex;gap:8px;flex-wrap:wrap}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#030a18f2;backdrop-filter:blur(10px);margin:12px 0 0;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+.tabs button{flex:none;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:500 14px var(--font-body);padding:11px 12px 9px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+main{padding-block:20px 40px;display:grid;gap:20px}
+.banner{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:9px 12px;font-size:13px}
+.banner button{margin-left:auto}
+.lead{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:flex-end;justify-content:space-between}
+.lead h2{font:600 20px/1.2 var(--font-head);margin:0 0 2px}
+.lead p{margin:0;color:var(--muted);font-size:13.5px;max-width:60ch}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.totals div{background:var(--surface);padding:12px 14px;min-width:0}
+.totals span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.totals b{font:600 22px/1.25 var(--font-head);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.totals .hl b{color:var(--accent)}
+section.box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+section.box h3{font:600 15px var(--font-head);margin:0 0 10px}
+.note{color:var(--muted);font-size:13px;margin:8px 0 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font:500 11.5px var(--font-body);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+tr.sub td{font-weight:600;background:var(--field)}
+tr.grp td{text-align:left;font:600 12px var(--font-body);color:var(--accent);padding-top:12px;text-transform:uppercase;letter-spacing:.06em;border-bottom:0}
+tbody tr:last-child td{border-bottom:0}
+input[type=number],select{font:inherit;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:5px;padding:5px 7px;width:92px;text-align:right;font-variant-numeric:tabular-nums}
+input.sm{width:68px}input.lg{width:130px}
+select{width:auto;max-width:210px;text-align:left}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:1px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.pill.no{background:var(--field);color:var(--muted);font-weight:500}
+.btn{font:500 13px var(--font-body);background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:5px 11px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--muted);font:500 13px var(--font-body);padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.inline{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.inline label{display:flex;gap:7px;align-items:center;font-size:13.5px;color:var(--muted)}
+.pos{color:var(--accent);font-weight:600}
+footer{color:var(--muted);font-size:12.5px;padding-bottom:28px}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);padding:18px;max-width:min(560px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{font:600 18px var(--font-head);margin:0 0 6px}
+dialog p{margin:0 0 10px;color:var(--muted);font-size:13.5px}
+dialog textarea{width:100%;min-height:110px;font:12px ui-monospace,Menlo,Consolas,monospace;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:8px;resize:vertical;word-break:break-all}
+dialog .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+dialog .msg{font-size:13px;color:var(--accent);min-height:1.2em}
+@media (max-width:520px){h1{font-size:22px}.totals b{font-size:19px}}
+@media (prefers-reduced-motion:no-preference){.tabs button{transition:color .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><a class="back" href="../preview.html">← DTF 261</a><h1>Hotties Calculator</h1><span class="credit">All credit really goes to OWL</span></div>
+  <div class="hdr-actions">
+    <button class="btn primary" id="installBtn" hidden>Install app</button>
+    <button class="btn" id="backupBtn">Backup / restore</button>
+  </div>
+</header>
+<nav><div class="tabs" role="tablist" id="tabs"></div></nav>
+<main id="main"></main>
+<footer>Costs come from the original spreadsheet's reference tables. Your entries are saved on this device only; use Backup / restore to move them to another phone or browser.</footer>
+</div>
+
+<dialog id="backupDlg">
+  <h2>Backup / restore</h2>
+  <p>Copy this code and keep it somewhere safe, or paste a code from another device and press Restore.</p>
+  <textarea id="backupTxt" spellcheck="false" aria-label="Backup code"></textarea>
+  <div class="row">
+    <button class="btn primary" id="copyBtn">Copy code</button>
+    <button class="btn" id="restoreBtn">Restore from code</button>
+    <button class="btn" id="closeDlg" style="margin-left:auto">Close</button>
+  </div>
+  <div class="msg" id="backupMsg" role="status"></div>
+</dialog>
+
+<script>
+const DATA = {"buildings":{"Warden's Office":[[1,1250,0],[2,1600,0],[3,2450,0],[4,3000,0],[5,3600,0],[6,1800,120],[7,2000,180],[8,2300,240],[9,2550,360],[10,3150,840]],"Shieldbearer Barracks":[[1,650,0],[2,750,0],[3,1150,0],[4,1250,0],[5,1500,0],[6,800,50],[7,900,75],[8,1050,110],[9,1150,160],[10,1450,375]],"Bomber Barracks":[[1,650,0],[2,750,0],[3,1150,0],[4,1250,0],[5,1500,0],[6,800,50],[7,900,75],[8,1050,110],[9,1150,160],[10,1450,375]],"Shooter Barracks":[[1,650,0],[2,750,0],[3,1150,0],[4,1250,0],[5,1500,0],[6,800,50],[7,900,75],[8,1050,110],[9,1150,160],[10,1450,375]],"Communication Center":[[1,250,0],[2,300,0],[3,400,0],[4,550,0],[5,650,0],[6,450,25],[7,500,40],[8,550,60],[9,500,70],[10,650,170]],"Command Center":[[1,250,0],[2,300,0],[3,400,0],[4,550,0],[5,650,0],[6,350,25],[7,400,40],[8,450,60],[9,650,85],[10,800,205]],"Medical Station":[[1,250,0],[2,300,0],[3,400,0],[4,550,0],[5,650,0],[6,350,25],[7,400,40],[8,450,60],[9,0,0],[10,0,0]]},"collections":[[1,"UNCOMMON","Base","UNCOMMON - Base",3000,30,0,0],[2,"UNCOMMON","1 Star","UNCOMMON - 1 Star",7500,75,0,0],[3,"RARE","Base","RARE - Base",13500,135,0,0],[4,"RARE","1 Star","RARE - 1 Star",20000,200,0,0],[5,"RARE","2 Star","RARE - 2 Star",5000,50,70,0],[6,"RARE","3 Star","RARE - 3 Star",6000,60,80,0],[7,"EPIC","Base","EPIC - Base",7000,70,90,0],[8,"EPIC","1 Star","EPIC - 1 Star",8000,80,100,0],[9,"EPIC","2 Star","EPIC - 2 Star",9000,90,110,0],[10,"EPIC","3 Star","EPIC - 3 Star",10000,100,120,0],[11,"EPIC - T1","Base","EPIC - T1 - Base",15000,150,140,0],[12,"EPIC - T1","1 Star","EPIC - T1 - 1 Star",20000,200,150,0],[13,"EPIC - T1","2 Star","EPIC - T1 - 2 Star",25000,250,170,0],[14,"EPIC - T1","3 Star","EPIC - T1 - 3 Star",30000,300,210,0],[15,"LEGENDARY","Base","LEGENDARY - Base",41000,410,90,0],[16,"LEGENDARY","1 Star","LEGENDARY - 1 Star",43000,430,90,0],[17,"LEGENDARY","2 Star","LEGENDARY - 2 Star",47000,470,100,0],[18,"LEGENDARY","3 Star","LEGENDARY - 3 Star",49000,490,100,0],[19,"LEGENDARY - T1","Base","LEGENDARY - T1 - Base",53000,530,100,0],[20,"LEGENDARY - T1","1 Star","LEGENDARY - T1 - 1 Star",57000,570,120,0],[21,"LEGENDARY - T1","2 Star","LEGENDARY - T1 - 2 Star",61000,610,120,0],[22,"LEGENDARY - T1","3 Star","LEGENDARY - T1 - 3 Star",66000,660,120,0],[23,"LEGENDARY - T2","Base","LEGENDARY - T2 - Base",71000,710,120,0],[24,"LEGENDARY - T2","1 Star","LEGENDARY - T2 - 1 Star",83000,830,160,0],[25,"LEGENDARY - T2","2 Star","LEGENDARY - T2 - 2 Star",88000,880,170,0],[26,"LEGENDARY - T2","3 Star","LEGENDARY - T2 - 3 Star",95000,950,180,0],[27,"EXOTIC","Base","EXOTIC - Base",100000,1000,180,15],[28,"EXOTIC","1 Star","EXOTIC - 1 Star",105000,1050,190,20],[29,"EXOTIC","2 Star","EXOTIC - 2 Star",110000,1100,200,20],[30,"EXOTIC","3 Star","EXOTIC - 3 Star",115000,1150,210,25],[31,"EXOTIC - T1","Base","EXOTIC - T1 - Base",120000,1200,245,25],[32,"EXOTIC - T1","1 Star","EXOTIC - T1 - 1 Star",125000,1250,255,30],[33,"EXOTIC - T1","2 Star","EXOTIC - T1 - 2 Star",130000,1300,265,30],[34,"EXOTIC - T1","3 Star","EXOTIC - T1 - 3 Star",135000,1350,275,35],[35,"EXOTIC - T2","Base","EXOTIC - T2 - Base",140000,1400,310,35],[36,"EXOTIC - T2","1 Star","EXOTIC - T2 - 1 Star",145000,1450,315,40],[37,"EXOTIC - T2","2 Star","EXOTIC - T2 - 2 Star",150000,1500,325,40],[38,"EXOTIC - T2","3 Star","EXOTIC - T2 - 3 Star",160000,1600,335,45],[39,"EXOTIC - T3","Base","EXOTIC - T3 - Base",165000,1650,350,45],[40,"EXOTIC - T3","1 Star","EXOTIC - T3 - 1 Star",170000,1700,365,50],[41,"EXOTIC - T3","2 Star","EXOTIC - T3 - 2 Star",175000,1750,385,50],[42,"EXOTIC - T3","3 Star","EXOTIC - T3 - 3 Star",180000,1800,410,55]],"robot_cost":[0,2160,6500,18100,39800,69780],"robot2":[[0,0,0,0],[2160,1,1,0],[4320,2,1,1],[6500,2,2,0],[8660,3,2,1],[13000,4,2,2],[20260,4,3,1],[24600,5,3,2],[36200,6,3,3],[46300,6,4,2],[57900,7,4,3],[76280,7,5,2],[79600,8,4,4],[87880,8,5,3],[109580,9,5,4],[139560,10,5,5]],"robot3":[[0,0,0,0,0],[2160,1,1,0,0],[4320,2,1,1,0],[6480,3,1,1,1],[8660,3,2,1,0],[10820,4,2,1,1],[13000,4,2,2,0],[15160,5,2,2,1],[19500,6,2,2,2],[26760,6,3,2,1],[31100,7,3,2,2],[38360,7,3,3,1],[42700,8,3,3,2],[52800,8,4,2,2],[54300,9,3,3,3],[64400,9,4,3,2],[76000,10,4,3,3],[86100,10,4,4,2],[94380,10,5,3,2],[97700,11,4,4,3],[105980,11,5,3,3],[116080,11,5,4,2],[119400,12,4,4,4],[127680,12,5,4,3],[146060,12,5,5,2],[149380,13,5,4,4],[157660,13,5,5,3],[179360,14,5,5,4],[209340,15,5,5,5]],"heroes":[["Season 1","Tyrone"],["Season 1","Phoenix"],["Season 1","Tormund"],["Season 1","Devilian"],["Season 1","Vivian"],["Season 1","Inata"],["Season 2","Alph"],["Season 2","Ceasar"],["Season 2","Mireya"],["Season 2","Lanchester"],["Season 3","Vironics"],["Season 3","whisper"],["Season 3","Xuanming"],["Season 3","Sawyer"],["Season 4","Koschevoi"],["Season 4","Drake"],["Season 4","Zoltan"],["Season 4","Ryuichi Ito"],["Season 5","Ada"],["Season 5","Edwin"],["Season 5","Marcus"],["Season 5","Lee"],["Season 6","Wukong"],["Season 6","Otto"],["Season 6","Kate"],["Season 6","Worrell"],["Season 7","Fran & Pike"],["Season 7","Boogie"],["Season 7","Rin"],["Season 7","Rex"]],"hero_cum":[0,10,35,60,105,150,215,280,365,450,550],"tome":[[0,1,10,10],[1,2,50,60],[2,3,90,110],[3,4,160,200],[4,5,270,330],[5,6,380,460],[6,7,480,600],[7,8,540,660],[8,9,620,780],[9,10,760,920],[10,11,920,1040],[11,12,1040,1240]],"tome_books":["Lethality Book 1","Lethality Book 2","Lethality Book 3","HP Book 1","HP Book 2","HP Book 3"],"reform":[[1,20,0],[2,40,0],[3,60,0],[4,80,0],[5,100,0],[6,120,0],[7,140,0],[8,160,0],[9,180,0],[10,200,0],[11,220,200],[12,240,400],[13,260,600],[14,280,800],[15,300,1000],[16,320,1200],[17,340,1400],[18,360,1600],[19,380,1800],[20,400,2000]],"promo":[[101,4900,0,0,null],[102,5000,0,0,null],[103,5100,0,0,null],[104,5200,0,0,null],[105,5300,0,0,null],[106,5400,0,0,null],[107,5500,0,0,null],[108,5600,0,0,null],[109,5700,0,0,null],[110,5800,0,0,null],[111,5900,0,0,null],[112,6000,0,0,null],[113,6100,0,0,null],[114,6200,0,0,null],[115,6300,0,0,null],[116,6400,0,0,null],[117,6500,0,0,null],[118,6600,0,0,null],[119,6700,0,0,null],[120,6800,600,20,"Breakthrough Lv 120 (Legendary T1 -> Legendary T2)"],[121,6900,0,0,null],[122,7000,0,0,null],[123,7100,0,0,null],[124,7200,0,0,null],[125,7300,0,0,null],[126,7400,0,0,null],[127,7500,0,0,null],[128,7600,0,0,null],[129,7700,0,0,null],[130,7800,0,0,null],[131,7900,0,0,null],[132,8000,0,0,null],[133,8100,0,0,null],[134,8200,0,0,null],[135,8300,0,0,null],[136,8400,0,0,null],[137,8500,0,0,null],[138,8600,0,0,null],[139,8700,0,0,null],[140,8800,1000,40,"Breakthrough Lv 140 (Legendary T2 -> Exotic)"],[141,8900,0,0,null],[142,9000,0,0,null],[143,9100,0,0,null],[144,9200,0,0,null],[145,9300,0,0,null],[146,9400,0,0,null],[147,9500,0,0,null],[148,9600,0,0,null],[149,9700,0,0,null],[150,9800,0,0,null],[151,9900,0,0,null],[152,10000,0,0,null],[153,10100,0,0,null],[154,10200,0,0,null],[155,10300,0,0,null],[156,10400,0,0,null],[157,10500,0,0,null],[158,10600,0,0,null],[159,10700,0,0,null],[160,10800,1000,60,"Breakthrough Lv 160 (Exotic -> Exotic T1)"],[161,11000,0,0,null],[162,11200,0,0,null],[163,11400,0,0,null],[164,11600,0,0,null],[165,11800,0,0,null],[166,12000,0,0,null],[167,12200,0,0,null],[168,12400,0,0,null],[169,12600,0,0,null],[170,12800,0,0,null],[171,13000,0,0,null],[172,13200,0,0,null],[173,13400,0,0,null],[174,13600,0,0,null],[175,13800,0,0,null],[176,14000,0,0,null],[177,14200,0,0,null],[178,14400,0,0,null],[179,14600,0,0,null],[180,14800,2000,80,"Breakthrough Lv 180 (Exotic T1 -> Exotic T2)"],[181,15000,0,0,null],[182,15200,0,0,null],[183,15400,0,0,null],[184,15600,0,0,null],[185,15800,0,0,null],[186,16000,0,0,null],[187,16200,0,0,null],[188,16400,0,0,null],[189,16600,0,0,null],[190,16800,0,0,null],[191,17000,0,0,null],[192,17200,0,0,null],[193,17400,0,0,null],[194,17600,0,0,null],[195,17800,0,0,null],[196,18000,0,0,null],[197,18200,0,0,null],[198,18400,0,0,null],[199,18600,0,0,null],[200,18800,2000,100,"Breakthrough Lv 200 (Exotic T2 -> Exotic T3)"]],"hyper":[["T1",1,30,600000,600000,120000,30000,5000],["T1",2,50,960000,960000,192000,48000,8000],["T1",3,80,1500000,1500000,312000,78000,13000],["T1",4,130,2400000,2400000,480000,120000,21000],["T1",5,220,4000000,4000000,800000,200000,33000],["T2",1,80,1600000,1600000,320000,80000,10000],["T2",2,100,2000000,2000000,400000,100000,14000],["T2",3,140,2500000,2500000,500000,125000,18000],["T2",4,180,3000000,3000000,600000,150000,25000],["T2",5,240,4000000,4000000,800000,200000,34000],["T2",6,300,5000000,5000000,1000000,250000,46000],["T2",7,380,6000000,6000000,1200000,300000,62000],["T2",8,480,8000000,8000000,1600000,400000,83000],["T2",9,600,9000000,9000000,1800000,450000,83000],["T2",10,800,12000000,12000000,2400000,600000,83000],["T3",1,160,2000000,2000000,400000,100000,23000],["T3",2,200,2500000,2500000,500000,125000,28000],["T3",3,240,3000000,3000000,600000,150000,34000],["T3",4,290,4000000,4000000,800000,200000,41000],["T3",5,360,4500000,4500000,900000,225000,51000],["T3",6,430,6000000,6000000,1200000,300000,62000],["T3",7,530,7000000,7000000,1400000,350000,76000],["T3",8,650,8500000,8500000,1700000,425000,83000],["T3",9,810,11000000,11000000,2200000,550000,110000],["T3",10,1010,13000000,13000000,2600000,650000,130000],["T3",11,1260,15500000,15500000,3100000,775000,160000],["T3",12,1580,19000000,19000000,3800000,950000,200000],["T4",1,4500,170000000,170000000,34000000,85000000,1000000],["T5A",1,200,5000000,5000000,1000000,250000,30000],["T5A",2,260,6500000,6500000,1300000,325000,40000],["T5A",3,340,9000000,9000000,1800000,450000,55000],["T5A",4,440,12500000,12500000,2500000,625000,75000],["T5A",5,590,16500000,16500000,3300000,825000,100000],["T5A",6,800,22000000,22000000,4400000,1100000,130000],["T5A",7,1120,30000000,30000000,6000000,1500000,180000],["T5A",8,1570,40000000,40000000,8000000,2000000,240000],["T5A",9,2360,54000000,54000000,10800000,2700000,330000],["T5A",10,3530,73000000,73000000,14600000,3600000,445500],["T5B",1,200,5000000,5000000,1000000,250000,30000],["T5B",2,260,6500000,6500000,1300000,325000,40000],["T5B",3,340,9000000,9000000,1800000,450000,55000],["T5B",4,440,12500000,12500000,2500000,625000,75000],["T5B",5,590,16500000,16500000,3300000,825000,100000],["T5B",6,800,22000000,22000000,4400000,1100000,130000],["T5B",7,1120,30000000,30000000,6000000,1500000,180000],["T5B",8,1570,40000000,40000000,8000000,2000000,240000],["T5B",9,2360,54000000,54000000,10800000,2700000,330000],["T5B",10,3530,73000000,73000000,14600000,3600000,445500]]};
+const KEY='hotties-calc-v1';
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+let S={}, examples=false;
+try{const raw=localStorage.getItem(KEY);if(raw)S=JSON.parse(raw)||{};}catch(e){}
+const EX={
+  'b_Warden\'s Office_c':3,'b_Warden\'s Office_t':8,'b_Command Center_c':0,'b_Command Center_t':5,'b_have_fc':4000,'b_have_afc':0,
+  'chip0':9000,'chip1':5000,'chip2':3000,'rt0_0':2,'rt0_1':2,'rt0_2':1,'rt1_0':1,'rt1_1':1,'rt1_2':1,'rs0':3,
+  'h_0_c':2,'h_0_t':10,'h_1_c':6,'h_1_t':10,
+  'c_0_c':6,'c_0_t':10,'c_2_c':3,'c_2_t':7,'c_have_0':50000,
+  't_0_c':3,'t_0_t':9,'t_3_c':0,'t_3_t':6,'t_have_w':2000,'t_have_k':2500,
+  'r_0_c':0,'r_0_t':12,'r_1_c':5,'r_1_t':12,
+  'p_0_c':100,'p_0_t':140,'p_1_c':110,'p_1_t':130,
+  'y_0_1_c':2,'y_0_1_t':6,'y_1_1_c':0,'y_1_1_t':5,'y_0_0_c':1,'y_0_0_t':5,'y_have_0':1200,'y_cards':530000,'y_cores':2500,'y_other':100
+};
+if(!Object.keys(S).length){S=Object.assign({},EX);examples=true;}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+const g=(k,lo=0,hi=1e12)=>clamp(parseInt(S[k])||0,lo,hi);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const ni=(k,o={})=>{const lo=o.min??0,hi=o.max??1e12;return `<input type="number" inputmode="numeric" id="${esc(k)}" data-k="${esc(k)}" data-min="${lo}" data-max="${hi}" min="${lo}" ${o.max!=null?`max="${hi}"`:''} class="${o.cls||''}" value="${esc(S[k]??0)}" aria-label="${esc(o.label||k)}">`};
+const sumRange=(rows,lvlIdx,lo,hi,valIdx)=>rows.reduce((a,r)=>a+(r[lvlIdx]>lo&&r[lvlIdx]<=hi?r[valIdx]:0),0);
+const totalsBox=items=>`<div class="totals">${items.map(([l,k,hl])=>`<div class="${hl?'hl':''}"><span>${l}</span><b data-o="${k}">0</b></div>`).join('')}</div>`;
+const lead=(t,p,reset)=>`<div class="lead"><div><h2>${t}</h2><p>${p}</p></div><button class="btn" data-reset="${reset}">Clear this tab</button></div>`;
+
+const P=[];
+/* ---------- Base ---------- */
+P.push({id:'base',name:'Base',
+ html(){
+  const names=Object.keys(DATA.buildings);
+  return lead('Full base','Pick each building’s current and target level. Needs are totalled against the Fire Crystals you already hold.','b_')+
+  totalsBox([['Fire Crystals needed','b_fc'],['Refined FC needed','b_afc'],['Net FC to collect','b_netfc',1],['Net Refined FC to collect','b_netafc',1]])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Building</th><th>Current</th><th>Target</th><th>FC</th><th>Refined FC</th></tr></thead><tbody>`+
+  names.map(n=>`<tr><td>${n}</td><td>${ni('b_'+n+'_c',{min:0,max:10,cls:'sm',label:n+' current level'})}</td><td>${ni('b_'+n+'_t',{min:0,max:10,cls:'sm',label:n+' target level'})}</td><td data-o="${esc('b_'+n+'_fc')}">0</td><td data-o="${esc('b_'+n+'_afc')}">0</td></tr>`).join('')+
+  `</tbody></table></div></section>`+
+  `<section class="box"><h3>Owned</h3><div class="inline"><label>Owned FC ${ni('b_have_fc',{cls:'lg'})}</label><label>Owned Refined FC ${ni('b_have_afc',{cls:'lg'})}</label></div></section>`;
+ },
+ calc(){
+  const o={};let fc=0,afc=0;
+  for(const [n,rows] of Object.entries(DATA.buildings)){
+    const c=g('b_'+n+'_c',0,10),t=g('b_'+n+'_t',0,10);
+    const a=sumRange(rows,0,c,t,1),b=sumRange(rows,0,c,t,2);
+    o['b_'+n+'_fc']=a;o['b_'+n+'_afc']=b;fc+=a;afc+=b;
+  }
+  o.b_fc=fc;o.b_afc=afc;o.b_netfc=Math.max(0,fc-g('b_have_fc'));o.b_netafc=Math.max(0,afc-g('b_have_afc'));
+  return o;
+ }});
+
+/* ---------- Robots ---------- */
+const CORE=['Solo','Rally','Defence'];
+const lookup=(tbl,chips)=>{let r=tbl[0];for(const row of tbl){if(row[0]<=chips)r=row;else break;}return r;};
+P.push({id:'robots',name:'Robots',
+ html(){
+  const n=g('rmode',0,3)||2;
+  const robotBlocks=Array.from({length:n},(_,i)=>`<section class="box"><h3>${i===0?'Robot 1 (main)':'Robot '+(i+1)}</h3><div class="scroll"><table><thead><tr><th>Core type</th><th>Cores now</th><th>Chips held</th><th>Target cores</th><th>Chips needed</th><th>After leftovers</th><th>Boxes</th></tr></thead><tbody>`+
+   CORE.map((c,j)=>`<tr><td>${c}</td><td data-o="rc${i}_${j}">0</td><td data-o="rh${i}_${j}">0</td><td>${ni(`rt${i}_${j}`,{min:0,max:5,cls:'sm',label:`Robot ${i+1} ${c} target cores`})}</td><td data-o="rn${i}_${j}">0</td><td data-o="ra${i}_${j}">0</td><td data-o="rb${i}_${j}" class="pos">0</td></tr>`).join('')+
+   `<tr class="sub"><td>Total</td><td></td><td data-o="rh${i}_t">0</td><td></td><td data-o="rn${i}_t">0</td><td data-o="ra${i}_t">0</td><td data-o="rb${i}_t">0</td></tr></tbody></table></div></section>`).join('');
+  return lead('Robot cores','Enter the chips you hold for each core type. The split below shows how many cores each robot can reach with the fewest chips, then what each robot still needs.','r')+
+  totalsBox([['Chips held','r_held'],['Chips spent on split','r_spent'],['Chips left over','r_left'],['Boxes still needed','r_boxes',1]])+
+  `<div class="two"><section class="box"><h3>Chips you hold</h3><div class="scroll"><table><thead><tr><th>Core type</th><th>Chips</th><th>Main robot target (0–5)</th><th>Chips needed</th><th>Boxes</th></tr></thead><tbody>`+
+  CORE.map((c,j)=>`<tr><td>${c}</td><td>${ni('chip'+j,{cls:'lg',label:c+' chips'})}</td><td>${ni('rs'+j,{min:0,max:5,cls:'sm',label:c+' single robot target'})}</td><td data-o="rs_n${j}">0</td><td data-o="rs_b${j}" class="pos">0</td></tr>`).join('')+
+  `</tbody></table></div><p class="note">Boxes give 2 chips each, rounded up. The target column answers: what does one robot need to reach that core level?</p></section>`+
+  `<section class="box"><h3>Core split</h3><div class="inline" style="margin-bottom:8px"><span style="color:var(--muted);font-size:13.5px">Robots</span><span class="seg"><button data-rmode="2" aria-pressed="${n===2}">2 robots</button><button data-rmode="3" aria-pressed="${n===3}">3 robots</button></span></div><div class="scroll"><table><thead><tr><th>Core type</th>${Array.from({length:n},(_,i)=>`<th>R${i+1}</th>`).join('')}<th>Total</th><th>Spent</th><th>Left</th></tr></thead><tbody>`+
+  CORE.map((c,j)=>`<tr><td>${c}</td>${Array.from({length:n},(_,i)=>`<td data-o="rc${i}_${j}">0</td>`).join('')}<td data-o="rtot${j}">0</td><td data-o="rsp${j}">0</td><td data-o="rl${j}">0</td></tr>`).join('')+
+  `</tbody></table></div></section></div>`+robotBlocks;
+ },
+ calc(){
+  const n=g('rmode',0,3)||2,tbl=n===3?DATA.robot3:DATA.robot2,cost=DATA.robot_cost,o={};
+  let held=0,spent=0,left=0,boxes=0;
+  const tot={h:Array(n).fill(0),n:Array(n).fill(0),a:Array(n).fill(0),b:Array(n).fill(0)};
+  for(let j=0;j<3;j++){
+    const chips=g('chip'+j),row=lookup(tbl,chips),sp=row[0],lf=chips-sp;
+    held+=chips;spent+=sp;left+=lf;
+    o['rsp'+j]=sp;o['rl'+j]=lf;o['rtot'+j]=row[1];
+    const t=g('rs'+j,0,5),need=Math.max(0,cost[t]-chips);o['rs_n'+j]=need;o['rs_b'+j]=Math.ceil(need/2);
+    for(let i=0;i<n;i++){
+      const cores=row[2+i],h=cost[cores],tg=g(`rt${i}_${j}`,0,5),need2=Math.max(0,cost[tg]-h),aft=Math.max(0,need2-lf),bx=Math.ceil(aft/2);
+      o[`rc${i}_${j}`]=cores;o[`rh${i}_${j}`]=h;o[`rn${i}_${j}`]=need2;o[`ra${i}_${j}`]=aft;o[`rb${i}_${j}`]=bx;
+      tot.h[i]+=h;tot.n[i]+=need2;tot.a[i]+=aft;tot.b[i]+=bx;
+    }
+  }
+  for(let i=0;i<n;i++){o[`rh${i}_t`]=tot.h[i];o[`rn${i}_t`]=tot.n[i];o[`ra${i}_t`]=tot.a[i];o[`rb${i}_t`]=tot.b[i];boxes+=tot.b[i];}
+  o.r_held=held;o.r_spent=spent;o.r_left=left;o.r_boxes=boxes;
+  return o;
+ }});
+
+/* ---------- Hero gear ---------- */
+P.push({id:'heroes',name:'Hero gear',
+ html(){
+  let last='';const rows=DATA.heroes.map(([s,h],i)=>{
+   let g1='';if(s!==last){g1=`<tr class="grp"><td colspan="5">${s}</td></tr>`;last=s;}
+   return g1+`<tr><td>${h}</td><td>${ni(`h_${i}_c`,{max:10,cls:'sm',label:h+' current'})}</td><td>${ni(`h_${i}_t`,{max:10,cls:'sm',label:h+' desired'})}</td><td data-o="h_${i}_m">0</td><td><span data-o="h_${i}_s" class="pill no">No</span></td></tr>`}).join('');
+  return lead('Exclusive hero gear','Set each hero’s current and desired gear level (0–10). Materials are the cumulative cost between the two levels.','h_')+
+  totalsBox([['Materials required','h_total',1],['Heroes tracked','h_count'],['Maxed','h_maxed'],['Pending upgrade','h_pending']])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Hero</th><th>Current</th><th>Desired</th><th>Materials</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+ },
+ calc(){
+  const o={},cum=DATA.hero_cum;let tot=0,max=0;
+  DATA.heroes.forEach((_,i)=>{
+   const c=g(`h_${i}_c`,0,10),t=g(`h_${i}_t`,0,10),m=t>c?cum[t]-cum[c]:0;o[`h_${i}_m`]=m;tot+=m;
+   o[`h_${i}_s`]=c>=10?'Maxed':'No';if(c>=10)max++;
+  });
+  o.h_total=tot;o.h_count=DATA.heroes.length;o.h_maxed=max;o.h_pending=DATA.heroes.length-max;return o;
+ }});
+
+/* ---------- Trove ---------- */
+const TR=['Shooter','Shooter','Bomber','Bomber','Shield','Shield'];
+const COINS=['Common','Rare','Precious','Legendary'];
+P.push({id:'trove',name:'Trove',
+ html(){
+  const opts=(z)=>`<option value="0">${z}</option>`+DATA.collections.map(r=>`<option value="${r[0]}">${r[0]}. ${r[3]}</option>`).join('');
+  const sel=(k,z)=>`<select id="${k}" data-k="${k}" aria-label="${k}">${opts(z).replace(`value="${g(k)}"`,`value="${g(k)}" selected`)}</select>`;
+  return lead('Trove collections','For each collection slot choose where it is now and where you want it. Coin totals use the souvenir cost of every level in between.','c_')+
+  totalsBox([...COINS.map((c,i)=>[c+' coins needed','c_n'+i,1])])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Slot</th><th>Current level</th><th>Target level</th>${COINS.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`+
+  TR.map((t,i)=>`<tr><td>${t} ${i%2+1}</td><td>${sel(`c_${i}_c`,'None / starting point')}</td><td>${sel(`c_${i}_t`,'Choose target')}</td>${COINS.map((_,j)=>`<td data-o="c_${i}_${j}">0</td>`).join('')}</tr>`).join('')+
+  `<tr class="sub"><td>Total</td><td></td><td></td>${COINS.map((_,j)=>`<td data-o="c_tot${j}">0</td>`).join('')}</tr>`+
+  `<tr><td>I have</td><td></td><td></td>${COINS.map((_,j)=>`<td>${ni('c_have_'+j,{cls:'lg',label:COINS[j]+' coins owned'})}</td>`).join('')}</tr>`+
+  `<tr class="sub"><td>Still need</td><td></td><td></td>${COINS.map((_,j)=>`<td data-o="c_n${j}">0</td>`).join('')}</tr></tbody></table></div></section>`;
+ },
+ calc(){
+  const o={},tot=[0,0,0,0];
+  TR.forEach((_,i)=>{const c=g(`c_${i}_c`,0,42),t=g(`c_${i}_t`,0,42);
+   for(let j=0;j<4;j++){const v=sumRange(DATA.collections,0,c,t,4+j);o[`c_${i}_${j}`]=v;tot[j]+=v;}});
+  for(let j=0;j<4;j++){o['c_tot'+j]=tot[j];o['c_n'+j]=Math.max(0,tot[j]-g('c_have_'+j));}
+  return o;
+ }});
+
+/* ---------- Tomes ---------- */
+const TROOPS=['Shield','Bomber','Shooter'];
+const TB=DATA.tome_books;
+const tomeRows=[];TROOPS.forEach(t=>TB.forEach(b=>tomeRows.push([t,b])));
+P.push({id:'tomes',name:'Tomes',
+ html(){
+  let last='';
+  const rows=tomeRows.map(([t,b],i)=>{let h='';if(t!==last){h=`<tr class="grp"><td colspan="5">${t}</td></tr>`;last=t;}
+   return h+`<tr><td>${b}</td><td>${ni(`t_${i}_c`,{max:12,cls:'sm',label:t+' '+b+' current'})}</td><td>${ni(`t_${i}_t`,{max:12,cls:'sm',label:t+' '+b+' desired'})}</td><td data-o="t_${i}_w">0</td><td data-o="t_${i}_k">0</td></tr>`}).join('');
+  return lead('Tomes','Each troop has three Lethality and three HP books, levels 0–12. Needs are in Seals of Wisdom and Seals of Knowledge.','t_')+
+  totalsBox([['Wisdom needed','t_nw',1],['Knowledge needed','t_nk',1],['Wisdom, all books','t_tw'],['Knowledge, all books','t_tk']])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Book</th><th>Current</th><th>Desired</th><th>Wisdom</th><th>Knowledge</th></tr></thead><tbody>${rows}`+
+  `<tr class="sub"><td>Grand total</td><td></td><td></td><td data-o="t_tw">0</td><td data-o="t_tk">0</td></tr>`+
+  `<tr><td>I have</td><td></td><td></td><td>${ni('t_have_w',{cls:'lg',label:'Wisdom owned'})}</td><td>${ni('t_have_k',{cls:'lg',label:'Knowledge owned'})}</td></tr>`+
+  `<tr class="sub"><td>Still need</td><td></td><td></td><td data-o="t_nw">0</td><td data-o="t_nk">0</td></tr></tbody></table></div>`+
+  `<p class="note">Maxing every book for one troop costs 31,920 Wisdom and 38,460 Knowledge; all three troops cost 95,760 and 115,380.</p></section>`;
+ },
+ calc(){
+  const o={};let w=0,k=0;
+  tomeRows.forEach((_,i)=>{const c=g(`t_${i}_c`,0,12),t=g(`t_${i}_t`,0,12);
+   const a=sumRange(DATA.tome,1,c,t,2),b=sumRange(DATA.tome,1,c,t,3);o[`t_${i}_w`]=a;o[`t_${i}_k`]=b;w+=a;k+=b;});
+  o.t_tw=w;o.t_tk=k;o.t_nw=Math.max(0,w-g('t_have_w'));o.t_nk=Math.max(0,k-g('t_have_k'));return o;
+ }});
+
+/* ---------- Reformation ---------- */
+const GEAR=['Gloves','Helmet','Vest','Shoes'],CLS=['Shooter','Bomber','Shield'];
+const refRows=[];CLS.forEach(c=>GEAR.forEach(e=>refRows.push([c,e])));
+P.push({id:'reform',name:'Reformation',
+ html(){
+  let last='';
+  const rows=refRows.map(([c,e],i)=>{let h='';if(c!==last){h=`<tr class="grp"><td colspan="5">${c}</td></tr>`;last=c;}
+   return h+`<tr><td>${e}</td><td>${ni(`r_${i}_c`,{max:20,cls:'sm',label:c+' '+e+' current'})}</td><td>${ni(`r_${i}_t`,{max:20,cls:'sm',label:c+' '+e+' desired'})}</td><td data-o="r_${i}_g">0</td><td data-o="r_${i}_m">0</td></tr>`}).join('');
+  return lead('Equipment reformation','Gloves, helmet, vest and shoes for each hero type, levels 0–20. Magnets are only required from level 11.','r_')+
+  totalsBox([['Precision gears','r_g',1],['Magnets','r_m',1]])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Equipment</th><th>Current</th><th>Desired</th><th>Gears</th><th>Magnets</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+ },
+ calc(){
+  const o={};let g1=0,m=0;
+  refRows.forEach((_,i)=>{const c=g(`r_${i}_c`,0,20),t=g(`r_${i}_t`,0,20);
+   const a=sumRange(DATA.reform,0,c,t,1),b=sumRange(DATA.reform,0,c,t,2);o[`r_${i}_g`]=a;o[`r_${i}_m`]=b;g1+=a;m+=b;});
+  o.r_g=g1;o.r_m=m;return o;
+ }});
+
+/* ---------- Promotion ---------- */
+const proRows=[];CLS.forEach(c=>GEAR.forEach(e=>proRows.push([c,e])));
+P.push({id:'promotion',name:'Promotion',
+ html(){
+  let last='';
+  const rows=proRows.map(([c,e],i)=>{let h='';if(c!==last){h=`<tr class="grp"><td colspan="6">${c}</td></tr>`;last=c;}
+   return h+`<tr><td>${e}</td><td>${ni(`p_${i}_c`,{min:100,max:200,cls:'sm',label:c+' '+e+' current'})}</td><td>${ni(`p_${i}_t`,{min:100,max:200,cls:'sm',label:c+' '+e+' target'})}</td><td data-o="p_${i}_b">0</td><td data-o="p_${i}_m">0</td><td data-o="p_${i}_k">0</td></tr>`}).join('');
+  const bt=DATA.promo.filter(r=>r[2]>0).map(r=>`<tr><td>Lv ${r[0]}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td style="text-align:left;color:var(--muted)">${r[4].replace(/^Breakthrough Lv \d+ \(|\)$/g,'')}</td></tr>`).join('');
+  return lead('Equipment promotion','Upgrade gear between levels 100 and 200. Bolts are spent on every level; magnets and potential coils on the breakthrough levels you pass.','p_')+
+  totalsBox([['Bolts','p_b',1],['Magnets','p_m',1],['Potential coils','p_k',1]])+
+  `<section class="box"><div class="scroll"><table><thead><tr><th>Equipment</th><th>Current</th><th>Target</th><th>Bolts</th><th>Magnets</th><th>Coils</th></tr></thead><tbody>${rows}</tbody></table></div></section>`+
+  `<section class="box"><h3>Breakthrough levels</h3><div class="scroll"><table><thead><tr><th>Level</th><th>Magnets</th><th>Coils</th><th style="text-align:left">Step</th></tr></thead><tbody>${bt}</tbody></table></div></section>`;
+ },
+ calc(){
+  const o={};let b=0,m=0,k=0;
+  proRows.forEach((_,i)=>{const c=g(`p_${i}_c`,100,200),t=g(`p_${i}_t`,100,200);
+   const x=sumRange(DATA.promo,0,c,t,1),y=sumRange(DATA.promo,0,c,t,2),z=sumRange(DATA.promo,0,c,t,3);
+   o[`p_${i}_b`]=x;o[`p_${i}_m`]=y;o[`p_${i}_k`]=z;b+=x;m+=y;k+=z;});
+  o.p_b=b;o.p_m=m;o.p_k=k;return o;
+ }});
+
+/* ---------- Hyperalloy ---------- */
+const TECH=[['T1','Tier 1 • Expedition Capacity',5],['T2','Tier 2 • Lethality',10],['T2','Tier 2 • ATK',10],['T2','Tier 2 • DEF',10],['T2','Tier 2 • HP',10],['T3','Tier 3 • Rally Capacity',12],['T4','Tier 4 • Unlock T11 Bastion',1],['T5A','Tier 5A • Healing / Lethality',10],['T5B','Tier 5B • Training / HP',10]];
+const RES=['Hyperalloy','Food','Wood','Steel','Gasoline','Gold cards'];
+P.push({id:'hyperalloy',name:'Hyperalloy',
+ html(){
+  const blocks=TROOPS.map((t,ti)=>`<section class="box"><h3>${t}</h3><div class="scroll"><table><thead><tr><th>Technology</th><th>Current</th><th>Target</th>${RES.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`+
+   TECH.map((x,i)=>`<tr><td>${x[1]}</td><td>${ni(`y_${ti}_${i}_c`,{max:x[2],cls:'sm',label:t+' '+x[1]+' current'})}</td><td>${ni(`y_${ti}_${i}_t`,{max:x[2],cls:'sm',label:t+' '+x[1]+' target'})}</td>${RES.map((_,j)=>`<td data-o="y_${ti}_${i}_r${j}">0</td>`).join('')}</tr>`).join('')+
+   `<tr class="sub"><td>${t} subtotal</td><td></td><td></td>${RES.map((_,j)=>`<td data-o="y_${ti}_s${j}">0</td>`).join('')}</tr></tbody></table></div></section>`).join('');
+  return lead('Forticlade Lab','Enter current and target levels for each lab technology (0 means not started). Tier 4 is an unlock, so use 0 or 1.','y_')+
+  totalsBox([['Hyperalloy needed','y_n0',1],['Gold cards needed','y_n5',1],['Hyperalloy per day','y_daily'],['Days to goal','y_days',1]])+
+  blocks+
+  `<section class="box"><h3>Totals</h3><div class="scroll"><table><thead><tr><th></th>${RES.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`+
+  `<tr><td>Total required</td>${RES.map((_,j)=>`<td data-o="y_t${j}">0</td>`).join('')}</tr>`+
+  `<tr><td>I have</td>${RES.map((_,j)=>`<td>${ni('y_have_'+j,{cls:'lg',label:RES[j]+' owned'})}</td>`).join('')}</tr>`+
+  `<tr class="sub"><td>Still needed</td>${RES.map((_,j)=>`<td data-o="y_n${j}">0</td>`).join('')}</tr></tbody></table></div></section>`+
+  `<section class="box"><h3>Daily exchange estimate</h3><div class="inline"><label>Gold cards to exchange ${ni('y_cards',{cls:'lg'})}</label><label>FC cores to exchange ${ni('y_cores',{cls:'lg'})}</label><label>Other daily Hyperalloy ${ni('y_other',{cls:'lg'})}</label></div>`+
+  `<p class="note">265,000 gold cards give 50 Hyperalloy and 2,500 FC cores give 3,000, in whole batches. From cards: <b data-o="y_fc">0</b>. From cores: <b data-o="y_fo">0</b>.</p></section>`;
+ },
+ calc(){
+  const o={},tot=Array(6).fill(0);
+  TROOPS.forEach((_,ti)=>{const s=Array(6).fill(0);
+   TECH.forEach((x,i)=>{const c=g(`y_${ti}_${i}_c`,0,x[2]),t=g(`y_${ti}_${i}_t`,0,x[2]);
+    for(let j=0;j<6;j++){let v=0;if(t>c)v=DATA.hyper.reduce((a,r)=>a+(r[0]===x[0]&&r[1]>c&&r[1]<=t?r[2+j]:0),0);o[`y_${ti}_${i}_r${j}`]=v;s[j]+=v;}});
+   for(let j=0;j<6;j++){o[`y_${ti}_s${j}`]=s[j];tot[j]+=s[j];}});
+  for(let j=0;j<6;j++){o['y_t'+j]=tot[j];o['y_n'+j]=Math.max(0,tot[j]-g('y_have_'+j));}
+  const fc=Math.floor(g('y_cards')/265000)*50,fo=Math.floor(g('y_cores')/2500)*3000,daily=fc+fo+g('y_other');
+  o.y_fc=fc;o.y_fo=fo;o.y_daily=daily;
+  o.y_days=o.y_n0===0?0:(daily===0?'Enter daily income':Math.ceil(o.y_n0/daily));
+  return o;
+ }});
+
+/* ---------- App shell ---------- */
+const tabsEl=document.getElementById('tabs'),mainEl=document.getElementById('main');
+let cur=P[0].id;
+const bannerHtml=()=>examples?`<div class="banner" id="exBanner"><span>Example numbers are loaded so you can see how each tab works.</span><button class="btn" id="clearAll">Clear everything</button></div>`:'';
+function show(id){
+  cur=P.find(p=>p.id===id)?id:P[0].id;
+  tabsEl.innerHTML=P.map(p=>`<button role="tab" data-tab="${p.id}" aria-selected="${p.id===cur}">${p.name}</button>`).join('');
+  mainEl.innerHTML=bannerHtml()+P.find(p=>p.id===cur).html();
+  update();
+}
+function update(){
+  const p=P.find(x=>x.id===cur),o=p.calc();
+  mainEl.querySelectorAll('[data-o]').forEach(el=>{
+    const v=o[el.dataset.o];if(v===undefined)return;
+    el.textContent=typeof v==='number'?fmt(v):v;
+    if(el.classList.contains('pill'))el.className='pill'+(v==='Maxed'?'':' no');
+  });
+}
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;S[k]=e.target.value;save();update();});
+document.addEventListener('change',e=>{
+  const t=e.target,k=t.dataset&&t.dataset.k;if(!k)return;
+  if(t.tagName==='INPUT'){const v=clamp(parseInt(t.value)||0,+t.dataset.min,+t.dataset.max);t.value=v;S[k]=v;}
+  else S[k]=t.value;
+  save();update();
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.tab){location.hash=b.dataset.tab;return;}
+  if(b.dataset.rmode){S.rmode=+b.dataset.rmode;save();show(cur);return;}
+  if(b.dataset.reset){const pre=b.dataset.reset;Object.keys(S).forEach(k=>{if(pre==='r'?/^(chip|rt|rs|rmode)/.test(k):k.startsWith(pre))delete S[k];});save();show(cur);return;}
+  if(b.id==='clearAll'){S={_c:1};examples=false;save();show(cur);}
+});
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+show(location.hash.slice(1)||P[0].id);
+
+/* ---------- Backup / restore ---------- */
+const dlg=document.getElementById('backupDlg'),txt=document.getElementById('backupTxt'),msg=document.getElementById('backupMsg');
+const encode=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const decode=s=>JSON.parse(decodeURIComponent(escape(atob(s.trim()))));
+document.getElementById('backupBtn').onclick=()=>{txt.value=encode(S);msg.textContent='';dlg.showModal?dlg.showModal():dlg.setAttribute('open','');};
+document.getElementById('closeDlg').onclick=()=>dlg.close?dlg.close():dlg.removeAttribute('open');
+document.getElementById('copyBtn').onclick=async()=>{
+  try{await navigator.clipboard.writeText(txt.value);msg.textContent='Copied.';}
+  catch(e){txt.select();msg.textContent='Select all and copy the code manually.';}
+};
+document.getElementById('restoreBtn').onclick=()=>{
+  try{const o=decode(txt.value);if(!o||typeof o!=='object'||Array.isArray(o))throw 0;
+    S=o;examples=false;save();show(cur);msg.textContent='Restored. Your numbers are loaded.';}
+  catch(e){msg.textContent='That code could not be read. Check you pasted the whole thing.';}
+};
+
+/* ---------- Install + offline ---------- */
+let deferredPrompt=null;const installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.hidden=false;});
+installBtn.onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.hidden=true;};
+window.addEventListener('appinstalled',()=>{installBtn.hidden=true;});
+if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
