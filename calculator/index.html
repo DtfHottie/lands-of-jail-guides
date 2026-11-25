@@ -148,8 +148,8 @@ const P=[];
 P.push({id:'base',name:'Base',
  html(){
   const names=Object.keys(DATA.buildings);
-  return lead('Full base','Pick each building’s current and target level. Needs are totalled against the Fire Crystals you already hold.','b_')+
-  totalsBox([['Fire Crystals needed','b_fc'],['Refined FC needed','b_afc'],['Net FC to collect','b_netfc',1],['Net Refined FC to collect','b_netafc',1]])+
+  return lead('Full base','Pick each building’s current and target level. Needs are totalled against the Forticlad (FC) you already hold.','b_')+
+  totalsBox([['Forticlad needed','b_fc'],['Refined FC needed','b_afc'],['Net FC to collect','b_netfc',1],['Net Refined FC to collect','b_netafc',1]])+
   `<section class="box"><div class="scroll"><table><thead><tr><th>Building</th><th>Current</th><th>Target</th><th>FC</th><th>Refined FC</th></tr></thead><tbody>`+
   names.map(n=>`<tr><td>${n}</td><td>${ni('b_'+n+'_c',{min:0,max:10,cls:'sm',label:n+' current level'})}</td><td>${ni('b_'+n+'_t',{min:0,max:10,cls:'sm',label:n+' target level'})}</td><td data-o="${esc('b_'+n+'_fc')}">0</td><td data-o="${esc('b_'+n+'_afc')}">0</td></tr>`).join('')+
   `</tbody></table></div></section>`+
@@ -318,7 +318,7 @@ P.push({id:'hyperalloy',name:'Hyperalloy',
   const blocks=TROOPS.map((t,ti)=>`<section class="box"><h3>${t}</h3><div class="scroll"><table><thead><tr><th>Technology</th><th>Current</th><th>Target</th>${RES.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`+
    TECH.map((x,i)=>`<tr><td>${x[1]}</td><td>${ni(`y_${ti}_${i}_c`,{max:x[2],cls:'sm',label:t+' '+x[1]+' current'})}</td><td>${ni(`y_${ti}_${i}_t`,{max:x[2],cls:'sm',label:t+' '+x[1]+' target'})}</td>${RES.map((_,j)=>`<td data-o="y_${ti}_${i}_r${j}">0</td>`).join('')}</tr>`).join('')+
    `<tr class="sub"><td>${t} subtotal</td><td></td><td></td>${RES.map((_,j)=>`<td data-o="y_${ti}_s${j}">0</td>`).join('')}</tr></tbody></table></div></section>`).join('');
-  return lead('Forticlade Lab','Enter current and target levels for each lab technology (0 means not started). Tier 4 is an unlock, so use 0 or 1.','y_')+
+  return lead('Forticlad Lab','Enter current and target levels for each lab technology (0 means not started). Tier 4 is an unlock, so use 0 or 1.','y_')+
   totalsBox([['Hyperalloy needed','y_n0',1],['Gold cards needed','y_n5',1],['Hyperalloy per day','y_daily'],['Days to goal','y_days',1]])+
   blocks+
   `<section class="box"><h3>Totals</h3><div class="scroll"><table><thead><tr><th></th>${RES.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`+
